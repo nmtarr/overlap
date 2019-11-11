@@ -11,9 +11,19 @@ def spatialite(db):
     """
     import os
     import sqlite3
+    import platform
     connection = sqlite3.connect(db)
     cursor = connection.cursor()
-    os.putenv('SPATIALITE_SECURITY', 'relaxed')
+
+    # Environment variables need to be handled
+    if platform.system() == 'Windows':
+        os.environ['PATH'] = os.environ['PATH'] + ';' + 'C:/Spatialite'
+        os.environ['SPATIALITE_SECURITY'] = 'relaxed'
+
+    if platform.system() == 'Darwin':
+        #os.putenv('SPATIALITE_SECURITY', 'relaxed')
+        os.environ['SPATIALITE_SECURITY'] = 'relaxed'
+
     connection.enable_load_extension(True)
     cursor.execute('SELECT load_extension("mod_spatialite");')
     cursor.execute('SELECT InitSpatialMetadata(1);')

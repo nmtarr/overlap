@@ -1,6 +1,9 @@
 import repo_functions as functions
 
-overlap_db = "/Users/nmtarr/documents/overlap/overlap.sqlite"
+# Wheres the project directory
+projDir = "T:/occurrence_records/Overlap/"
+
+overlap_db = projDir + "/overlap.sqlite"
 
 # Radii to examine (meters)
 radii = (10,30,60,100,200,300,400,500,600,700,800,900,
@@ -9,16 +12,13 @@ radii = (10,30,60,100,200,300,400,500,600,700,800,900,
 # Minimum_overlap to examine
 min_overlap = range(30,100,5)
 
-# Wheres the project directory
-projDir = "/users/nmtarr/documents/overlap/"
-
 feature_layers = {"hucs":(projDir + "NChucs","HUC12RNG"),
                   "ncba_blocks":(projDir + "NCBAblocks",'BLOCK_QUAD'),
                   "counties":(projDir + "NCcounties",'OBJECTID'),
                   "points2":(projDir + "points2", 'id')}
 
-points1 = "/Users/nmtarr/Documents/Overlap/points1.shp"
-points2 = "/Users/nmtarr/Documents/Overlap/points2.shp"
+points1 = projDir + "points1.shp"
+points2 = projDir + "points2.shp"
 
 ################################################################################
 ################################################################################
