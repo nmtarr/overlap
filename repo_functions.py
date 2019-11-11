@@ -162,7 +162,7 @@ def summarize_by_features(overlap_db, points, features, IDfield, radius, min_ove
     DROP TABLE leaf;
     DROP TABLE bulb;
     */
-    """.format(points, features, id, radius, int(min_overlap))
+    """.format(points, features, IDfield, radius, min_overlap)
 
     try:
         usable_points = cursor.executescript(sql).fetchone()[0]
