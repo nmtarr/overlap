@@ -9,12 +9,16 @@ radii = (10,30,60,100,200,300,400,500,600,700,800,900,
 # Minimum_overlap to examine
 min_overlap = range(30,100,5)
 
-feature_layers = {"hucs":("/Users/nmtarr/Documents/Overlap/NChucs5070","HUC12RNG"),
-                  "ncba_blocks":("/Users/nmtarr/Documents/Overlap/NCBAblocks5070",'BLOCK_QUAD'),
-                  "counties":("/Users/nmtarr/Documents/Overlap/NCcounties5070",'OBJECTID'),
-                  "points1":("/Users/nmtarr/Documents/Overlap/points1", 'id')}
+# Wheres the project directory
+projDir = "/users/nmtarr/documents/overlap/"
+
+feature_layers = {"hucs":(projDir + "NChucs","HUC12RNG"),
+                  "ncba_blocks":(projDir + "NCBAblocks",'BLOCK_QUAD'),
+                  "counties":(projDir + "NCcounties",'OBJECTID'),
+                  "points2":(projDir + "points2", 'id')}
 
 points1 = "/Users/nmtarr/Documents/Overlap/points1.shp"
+points2 = "/Users/nmtarr/Documents/Overlap/points2.shp"
 
 ################################################################################
 ################################################################################
@@ -24,8 +28,8 @@ functions.build_tables(overlap_db, feature_layers)
 
 # For each point in the set, buffer with each of the radii.  Save buffers as
 #   geometries in columns.
-for radius in radii:
-    functions.buffer("points1", radius)
+for radius in radii[:1]:
+    functions.buffer_points(overlap_db, "points2", radius)
 
 # Fill out results table with proportion of points that can be attributed to
 # a huc at each buffer radius - minimum overlap combination.

@@ -49,13 +49,14 @@ def build_tables(db, feature_layers):
         print(e)
 
     # Feature shapefiles
-    for item in feature_layers.keys():
+    for item in list(feature_layers.keys()):
         table_name = item
         path = feature_layers[item][0]
         IDfield = feature_layers[item][1]
-        print(table_name, path, IDfield)
-        sql = """SELECT ImportSHP({0}, '{1}', 'utf-8', 5070, 'geom_5070', '{2}', 'POLYGON');
-                """.format(path, table_name, IDfield)
+        print(table_name)
+        print(path)
+        print(IDfield)
+        sql = """SELECT ImportSHP('{0}', '{1}', 'utf-8', 5070, 'geom_5070', '{2}', 'POLYGON');""".format(path, table_name, IDfield)
         try:
             cursor.execute(sql)
         except Exception as e:
@@ -63,19 +64,25 @@ def build_tables(db, feature_layers):
 
     connection.commit()
     connection.close()
-    del cursor
     return
 
 # Buffer xy points
-def buffer_points(points, radius):
+def buffer_points(db, points, radius):
     """
     Buffers the points with the given radius (m).
 
     Arguments:
+    db -- STRING; path to database.
     points -- STRING; a point set identifier from the database.
     radius -- INTEGER; a radius to use when buffering in meters.
     """
-    cursor, connection = spatialite(db)
+    import os
+    import sqlite3
+    connection = sqlite3.connect(db)
+    cursor = connection.cursor()
+    os.putenv('SPATIALITE_SECURITY', 'relaxed')
+    connection.enable_load_extension(True)
+    cursor.execute('SELECT load_extension("mod_spatialite");')
     strRadius = str(radius)
 
     # Buffers and put in new column
@@ -84,7 +91,7 @@ def buffer_points(points, radius):
 
     UPDATE {0} SET buffer{1} = Buffer(geom_5070, {1});
 
-    SELECT RecoverGeometryColumn('{0}', 'buffer{1}', 5070, 'MULTIPOLYGON', 'XY');
+    SELECT RecoverGeometryColumn('{0}', 'buffer{1}', 5070, 'POLYGON', 'XY');
     """.format(points, radius)
     try:
         cursor.executescript(sql)
