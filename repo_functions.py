@@ -1,5 +1,5 @@
 # Connect to the project database
-def spatialite(db):
+def spatialite(db, init_spatial_metadata=False):
     """
     Creates a connection and cursor for sqlite db and enables
     spatialite extension and shapefile functions.
@@ -26,7 +26,10 @@ def spatialite(db):
 
     connection.enable_load_extension(True)
     cursor.execute('SELECT load_extension("mod_spatialite");')
-    cursor.execute('SELECT InitSpatialMetadata(1);')
+    if init_spatial_metadata == True:
+        cursor.execute('SELECT InitSpatialMetadata(1);')
+    else:
+        print('No spatial metadata initilialized')
     return cursor, connection
 
 # Build necessary tables in database (load shapefiles)
@@ -109,7 +112,7 @@ def buffer_points(db, points, radius):
         print(e)
 
 # Perform summaries of records within feature polygons
-def summarize_by_features(points, features, IDfield, radius, min_overlap):
+def summarize_by_features(overlap_db, points, features, IDfield, radius, min_overlap):
     """
     Returns the proportion of points that can be attributed to a feature from
     the feature layer with the stated buffer radii (m) and minimum overlap (%).
@@ -159,7 +162,7 @@ def summarize_by_features(points, features, IDfield, radius, min_overlap):
     DROP TABLE leaf;
     DROP TABLE bulb;
     */
-    """.format(points, features, id, radius, min_overlap)
+    """.format(points, features, id, radius, int(min_overlap))
 
     try:
         usable_points = cursor.executescript(sql).fetchone()[0]
@@ -168,7 +171,8 @@ def summarize_by_features(points, features, IDfield, radius, min_overlap):
     conn.commit()
     conn.close()
 
-    return(100*(usable_points/n_points))
+    answer = 100*(usable_points/n_points)
+    return(answer)
 
 # Put value in correct cell
 def enter_result(point_set, radius, min_overlap, prop_usable):

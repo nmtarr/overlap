@@ -28,19 +28,20 @@ functions.build_tables(overlap_db, feature_layers)
 
 # For each point in the set, buffer with each of the radii.  Save buffers as
 #   geometries in columns.
-for radius in radii[:1]:
+for radius in radii:
     functions.buffer_points(overlap_db, "points2", radius)
 
 # Fill out results table with proportion of points that can be attributed to
 # a huc at each buffer radius - minimum overlap combination.
-for lap in min_overlap:
-    radius in radii:
-    print(lap, radius)
-    usable = functions.summarize_by_features(points='points1', features='hucs',
-                                             id='HUC12RNG', radius=radius,
-                                             min_overlap=lap)
-
-    functions.enter_result(point_set=points, radius=radius,
-                           min_overlap=min_overlap, prop_usable=usable)
+for lap in min_overlap[:2]:
+    for radius in radii[:2]:
+        print(lap, radius)
+        usable = functions.summarize_by_features(overlap_db=overlap_db,
+                                                 points='points2', features='hucs',
+                                                 IDfield='HUC12RNG', radius=radius,
+                                                 min_overlap=lap)
+        print(usable)
+        functions.enter_result(point_set=points, radius=radius,
+                               min_overlap=min_overlap, prop_usable=usable)
 
 # Graph results y-axis: prop_usable, x-axis: buffer, series: min_overlap
