@@ -33,8 +33,8 @@ for radius in radii:
 
 # Fill out results table with proportion of points that can be attributed to
 # a huc at each buffer radius - minimum overlap combination.
-for lap in min_overlap[:2]:
-    for radius in radii[:2]:
+for lap in min_overlap[:1]:
+    for radius in radii[:1]:
         print(lap, radius)
         usable = functions.summarize_by_features(overlap_db=overlap_db,
                                                  points='points2', features='hucs',

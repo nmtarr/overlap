@@ -46,7 +46,7 @@ def build_tables(db, feature_layers):
     NOTE:
     Tables must be in SRID 5070 projection.
     """
-    cursor, connection = spatialite(db)
+    cursor, connection = spatialite(db, init_spatial_metadata=True)
 
     # Results table
     sql = """
@@ -98,6 +98,8 @@ def buffer_points(db, points, radius):
     cursor.execute('SELECT load_extension("mod_spatialite");')
     strRadius = str(radius)
 
+    print(strRadius)
+
     # Buffers and put in new column
     sql = """
     ALTER TABLE {0} ADD COLUMN buffer{1} BLOB;
@@ -118,6 +120,7 @@ def summarize_by_features(overlap_db, points, features, IDfield, radius, min_ove
     the feature layer with the stated buffer radii (m) and minimum overlap (%).
 
     Arguments:
+    overlap_db -- STRING; path to the overlap project database.
     points -- STRING; identifier of the point set from the point_sets table.
     features -- STRING; name of feature layer table, as saved in the project db.
     IDfield -- STRING; unique ID field of the feature.
@@ -134,10 +137,14 @@ def summarize_by_features(overlap_db, points, features, IDfield, radius, min_ove
     # Get the total number of points
     n_points = cursor.execute("""SELECT count(id)
                                  FROM {0}""".format(points)).fetchone()[0]
+    print(n_points)                                                             ###  TEMP
+    print('radius: ' + str(radius))
+    print(type(radius))
+    print('min_overlap: ' + str(min_overlap))
+    print(type(min_overlap))
 
     # How many records can be used?
     sql = """
-
     /* Intersect occurrence circles with features */
     CREATE TABLE leaf AS
                  SELECT occs.id as point_id, layer.{2} as feature_id,
@@ -165,7 +172,8 @@ def summarize_by_features(overlap_db, points, features, IDfield, radius, min_ove
     """.format(points, features, IDfield, radius, min_overlap)
 
     try:
-        usable_points = cursor.executescript(sql).fetchone()[0]
+        usable_points = cursor.executescript(sql).fetchone()
+        print(usable_points, type(usable_points), len(usable_points)
     except Exception as e:
         print(e)
     conn.commit()
