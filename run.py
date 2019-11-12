@@ -1,9 +1,9 @@
 import repo_functions as functions
 
 # Wheres the project directory
-projDir = "T:/occurrence_records/Overlap/"
+projDir = "/Users/nmtarr/Documents/Overlap/"
 
-overlap_db = projDir + "/overlap.sqlite"
+db = projDir + "/overlap.sqlite"
 
 # Radii to examine (meters)
 radii = (10,30,60,100,200,300,400,500,600,700,800,900,
@@ -24,19 +24,19 @@ points2 = projDir + "points2.shp"
 ################################################################################
 ################################################################################
 # Create and populate the database with tables
-functions.build_tables(overlap_db, feature_layers)
+functions.build_tables(db, feature_layers)
 
 # For each point in the set, buffer with each of the radii.  Save buffers as
 #   geometries in columns.
 for radius in radii:
-    functions.buffer_points(overlap_db, "points2", radius)
+    functions.buffer_points(db, "points2", radius)
 
 # Fill out results table with proportion of points that can be attributed to
 # a huc at each buffer radius - minimum overlap combination.
 for lap in min_overlap[:1]:
     for radius in radii[:1]:
         print(lap, radius)
-        usable = functions.summarize_by_features(overlap_db=overlap_db,
+        usable = functions.summarize_by_features(overlap_db=db,
                                                  points='points2', features='hucs',
                                                  IDfield='HUC12RNG', radius=radius,
                                                  min_overlap=lap)
