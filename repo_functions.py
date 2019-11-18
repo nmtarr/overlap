@@ -28,8 +28,6 @@ def spatialite(db, init_spatial_metadata=False):
     cursor.execute('SELECT load_extension("mod_spatialite");')
     if init_spatial_metadata == True:
         cursor.execute('SELECT InitSpatialMetadata(1);')
-    else:
-        print('No spatial metadata initilialized')
     return cursor, connection
 
 # Build necessary tables in database (load shapefiles)
@@ -137,11 +135,6 @@ def summarize_by_features(overlap_db, points, features, IDfield, radius, min_ove
     # Get the total number of points
     n_points = cursor.execute("""SELECT count(id)
                                  FROM {0}""".format(points)).fetchone()[0]
-    print(n_points)                                                             ###  TEMP
-    print('radius: ' + str(radius))
-    print(type(radius))
-    print('min_overlap: ' + str(min_overlap))
-    print(type(min_overlap))
 
     # How many records can be used?
     sql = """
@@ -161,21 +154,19 @@ def summarize_by_features(overlap_db, points, features, IDfield, radius, min_ove
                     LEFT JOIN {0} AS occs
                     ON leaf.point_id = occs.id
                  WHERE proportion_circle >= {4};
-
-    /* Count the number of points in bulb */
-    SELECT count(point_id) FROM bulb;
-
-    /*
-    DROP TABLE leaf;
-    DROP TABLE bulb;
-    */
     """.format(points, features, IDfield, radius, min_overlap)
-
     try:
-        usable_points = cursor.executescript(sql).fetchone()
-        print(usable_points, type(usable_points), len(usable_points)
+        cursor.executescript(sql)
     except Exception as e:
         print(e)
+
+    sql = """SELECT count(point_id) FROM (SELECT point_id FROM bulb GROUP BY point_id)"""
+    try:
+        usable_points = cursor.execute(sql).fetchone()[0]
+    except Exception as e:
+        print(e)
+
+    cursor.executescript("""DROP TABLE leaf; DROP TABLE bulb;""")
     conn.commit()
     conn.close()
 
@@ -183,14 +174,26 @@ def summarize_by_features(overlap_db, points, features, IDfield, radius, min_ove
     return(answer)
 
 # Put value in correct cell
-def enter_result(point_set, radius, min_overlap, prop_usable):
+def enter_result(db, point_set, radius, min_overlap, prop_usable, layer):
     """
+    Enters value into the results table.
+
+    Arguments:
+    db -- path to database.
+    point_set -- name of the set of random points the value corresponds to.
+    radius -- buffer radius explored when gettting the value.
+    min_overlap -- minimum overlap explored when getting the value.
+    prop_usable -- percent of points useable with the buffer radius and min_overlap.
+    layer -- feature layer assessed (e.g. huc).
     """
+
     sql = """
-    UPDATE TABLE results
-    SET prop_usable = {0}
-    WHERE point_set = '{1}'
-        AND radius = '{2}'
-        AND min_overlap = '{3}'
-    """.format(prop_usable, point_set, radius, min_overlap)
+    INSERT INTO results (point_set, radius, min_overlap, prop_usable, layer)
+    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}');
+    """.format(point_set, radius, min_overlap, prop_usable, layer)
+
+    cursor, conn = spatialite(db)
+    cursor.execute(sql)
+    conn.commit()
+    conn.close()
     return
