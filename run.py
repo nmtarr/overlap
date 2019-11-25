@@ -14,7 +14,7 @@ run_points = "points1"
 projDir = "T:/Occurrence_Records/Overlap/"
 
 # Remove existing dtabase
-db = projDir + "/overlap3.sqlite"
+db = projDir + "/overlap.sqlite"
 #os.remove(db)
 
 # Radii to examine (meters)
@@ -45,7 +45,7 @@ for radius in radii:
 
 # Fill out results table with proportion of points that can be attributed to
 # a huc at each buffer radius - minimum overlap combination.
-for layer in layers[:1]:
+for layer in layers[2:]:
     print(layer)
     for lap in min_overlap:
         print("\t" + str(lap))
@@ -73,7 +73,7 @@ title_dict = {'hucs': "NC 12-digit HUCs",
               'counties': "NC Counties",
               'ncba_blocks': "NC Bird Atlas Blocks"}
 
-for layer in layers[:1]:
+for layer in layers[2:]:
     sql = "SELECT * FROM results WHERE layer = '{0}';".format(layer)
     curs, con = functions.spatialite(db)
     df0 = pd.read_sql(sql, con)

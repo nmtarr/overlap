@@ -67,9 +67,10 @@ def build_tables(db, feature_layers):
         print(table_name)
         print(path)
         print(IDfield)
-        sql = """SELECT ImportSHP('{0}', '{1}', 'utf-8', 5070, 'geom_5070', '{2}', 'POLYGON');""".format(path, table_name, IDfield)
+        sql = """SELECT ImportSHP('{0}', '{1}', 'utf-8', 5070, 'geom_5070', '{2}', 'POLYGON');
+              """.format(path, table_name, IDfield)
         try:
-            cursor.execute(sql)
+            cursor.executescript(sql)
         except Exception as e:
             print(e)
 
@@ -105,8 +106,6 @@ def buffer_points(db, points, radius):
     UPDATE {0} SET buffer{1} = Buffer(geom_5070, {1});
 
     SELECT RecoverGeometryColumn('{0}', 'buffer{1}', 5070, 'POLYGON', 'XY');
-
-    SELECT CreateSpatialIndex('{0}', 'buffer{1}');
     """.format(points, radius)
     try:
         cursor.executescript(sql)
@@ -146,6 +145,7 @@ def summarize_by_features(overlap_db, points, features, IDfield, radius, min_ove
                  CastToMultiPolygon(Intersection(layer.geom_5070, occs.buffer{3})) AS geom
                  FROM {1} as layer, {0} AS occs
                  WHERE Intersects(layer.geom_5070, occs.buffer{3});
+
     SELECT RecoverGeometryColumn('leaf', 'geom', 5070, 'MULTIPOLYGON', 'XY');
 
     /* Select records with area greater or equal to the minimum overlap  */
