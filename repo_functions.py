@@ -105,6 +105,8 @@ def buffer_points(db, points, radius):
     UPDATE {0} SET buffer{1} = Buffer(geom_5070, {1});
 
     SELECT RecoverGeometryColumn('{0}', 'buffer{1}', 5070, 'POLYGON', 'XY');
+
+    SELECT CreateSpatialIndex('{0}', 'buffer{1}');
     """.format(points, radius)
     try:
         cursor.executescript(sql)
