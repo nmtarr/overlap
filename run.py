@@ -8,14 +8,14 @@ import pandas as pd
 import matplotlib as plt
 
 # What point set to run
-run_points = "points1"
+run_points = "points3"
 
 # Where is the project directory
 projDir = "T:/Occurrence_Records/Overlap/"
 
 # Remove existing dtabase
 db = projDir + "/overlap.sqlite"
-#os.remove(db)
+os.remove(db)
 
 # Radii to examine (meters)
 radii = (10,30,60,100,200,300,400,500,600,700,800,900,
@@ -30,7 +30,8 @@ feature_layers = {"hucs":(projDir + "NChucs","HUC12RNG"),
                   "ncba_blocks":(projDir + "NCBAblocks",'BLOCK_QUAD'),
                   "counties":(projDir + "NCcounties",'OBJECTID'),
                   "points1":(projDir + "points1", 'id'),
-                  "points2":(projDir + "points2", 'id')}
+                  "points2":(projDir + "points2", 'id'),
+                  "points3":(projDir + "points3", 'id')}
 
 ################################################################################
 ################               Run Processes              ######################
